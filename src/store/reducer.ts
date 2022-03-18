@@ -54,15 +54,16 @@ function reducer(state: AppState, action: AppActions): AppState {
       };
 
     case DELETE_TODO:
-      const index1 = state.todos.findIndex(
-        (todo) => todo.id === action.payload
-      );
-      state.todos.splice(index1, 1);
+      const newTodos = [...state.todos];
+      const index1 = newTodos.findIndex((todo) => todo.id === action.payload);
+
+      newTodos.splice(index1, 1);
 
       return {
         ...state,
-        todos: state.todos,
+        todos: newTodos,
       };
+
     case DELETE_ALL_TODOS:
       return {
         ...state,

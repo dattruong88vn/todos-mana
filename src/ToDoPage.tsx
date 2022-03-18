@@ -7,6 +7,7 @@ import {
   toggleAllTodos,
   deleteAllTodos,
   updateTodoStatus,
+  deleteTodo,
 } from "./store/actions";
 import Service from "./service";
 import { TodoStatus } from "./models/todo";
@@ -15,7 +16,9 @@ type EnhanceTodoStatus = TodoStatus | "ALL";
 
 const ToDoPage = () => {
   const [{ todos }, dispatch] = useReducer(reducer, initialState);
-  const [showing, setShowing] = useState<EnhanceTodoStatus>("ALL");
+  const [showing, setShowing] = useState<EnhanceTodoStatus>(
+    TodoStatus.COMPLETED
+  );
   const inputRef = useRef<any>(null);
 
   useEffect(() => {
@@ -45,6 +48,10 @@ const ToDoPage = () => {
     dispatch(updateTodoStatus(todoId, e.target.checked));
   };
 
+  const onDeleteTodo = (todoId: any) => {
+    dispatch(deleteTodo(todoId));
+  };
+
   const onToggleAllTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(toggleAllTodos(e.target.checked));
   };
@@ -70,10 +77,15 @@ const ToDoPage = () => {
               <input
                 type="checkbox"
                 checked={showing === todo.status}
-                onChange={(e) => onUpdateTodoStatus(e, index)}
+                onChange={(e) => onUpdateTodoStatus(e, todo.id)}
               />
               <span>{todo.content}</span>
-              <button className="Todo__delete">X</button>
+              <button
+                className="Todo__delete"
+                onClick={() => onDeleteTodo(todo.id)}
+              >
+                X
+              </button>
             </div>
           );
         })}
