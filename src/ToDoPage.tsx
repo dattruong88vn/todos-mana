@@ -8,18 +8,21 @@ import {
   deleteAllTodos,
   updateTodoStatus,
   deleteTodo,
+  updateTodoContent,
 } from "./store/actions";
 import Service from "./service";
-import { TodoStatus } from "./models/todo";
+import { Todo, TodoStatus } from "./models/todo";
+import useClickOutside from "./hooks/useClickOutside";
 
 type EnhanceTodoStatus = TodoStatus | "ALL";
 
 const ToDoPage = () => {
   const [{ todos }, dispatch] = useReducer(reducer, initialState);
-  const [showing, setShowing] = useState<EnhanceTodoStatus>(
-    TodoStatus.COMPLETED
-  );
+  const [showing, setShowing] = useState<EnhanceTodoStatus>("ALL");
   const inputRef = useRef<any>(null);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const inputUpdateRef = useRef<any>(null);
+  const [isShowUpdate, setIsShowUpdate] = useClickOutside(inputUpdateRef);
 
   useEffect(() => {
     (async () => {
@@ -38,6 +41,15 @@ const ToDoPage = () => {
       const resp = await Service.createTodo(inputRef.current.value);
       dispatch(createTodo(resp));
       inputRef.current.value = "";
+    }
+  };
+
+  const onUpdateTodo = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && selectedTodo) {
+      dispatch(
+        updateTodoContent(selectedTodo.id, inputUpdateRef.current.value)
+      );
+      setIsShowUpdate(false);
     }
   };
 
@@ -60,6 +72,11 @@ const ToDoPage = () => {
     dispatch(deleteAllTodos());
   };
 
+  const onDoubleClickTodo = (todo: Todo) => {
+    setSelectedTodo(todo);
+    setIsShowUpdate(true);
+  };
+
   return (
     <div className="ToDo__container">
       <div className="Todo__creation">
@@ -79,7 +96,19 @@ const ToDoPage = () => {
                 checked={showing === todo.status}
                 onChange={(e) => onUpdateTodoStatus(e, todo.id)}
               />
-              <span>{todo.content}</span>
+              {selectedTodo && selectedTodo.id === todo.id && isShowUpdate ? (
+                <input
+                  className="Todo__input"
+                  ref={inputUpdateRef}
+                  defaultValue={selectedTodo.content}
+                  autoFocus
+                  onKeyDown={onUpdateTodo}
+                />
+              ) : (
+                <span onDoubleClick={() => onDoubleClickTodo(todo)}>
+                  {todo.content}
+                </span>
+              )}
               <button
                 className="Todo__delete"
                 onClick={() => onDeleteTodo(todo.id)}
