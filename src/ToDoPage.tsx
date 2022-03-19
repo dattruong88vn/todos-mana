@@ -20,6 +20,7 @@ const ToDoPage = () => {
   const [{ todos }, dispatch] = useReducer(reducer, initialState);
   const [showing, setShowing] = useState<EnhanceTodoStatus>("ALL");
   const inputRef = useRef<any>(null);
+
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const inputUpdateRef = useRef<any>(null);
   const [isShowUpdate, setIsShowUpdate] = useClickOutside(inputUpdateRef);
@@ -44,7 +45,7 @@ const ToDoPage = () => {
     }
   };
 
-  const onUpdateTodo = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onUpdateTodoContent = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && selectedTodo) {
       dispatch(
         updateTodoContent(selectedTodo.id, inputUpdateRef.current.value)
@@ -102,7 +103,7 @@ const ToDoPage = () => {
                   ref={inputUpdateRef}
                   defaultValue={selectedTodo.content}
                   autoFocus
-                  onKeyDown={onUpdateTodo}
+                  onKeyDown={onUpdateTodoContent}
                 />
               ) : (
                 <span onDoubleClick={() => onDoubleClickTodo(todo)}>
