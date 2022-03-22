@@ -5,6 +5,7 @@ import {
   DELETE_ALL_TODOS,
   DELETE_TODO,
   TOGGLE_ALL_TODOS,
+  TOGGLE_MULTI_TODOS,
   UPDATE_TODO_STATUS,
   UPDATE_TODO_CONTENT,
 } from "./actions";
@@ -65,6 +66,23 @@ function reducer(state: AppState, action: AppActions): AppState {
       return {
         ...state,
         todos: tempTodos,
+      };
+
+    case TOGGLE_MULTI_TODOS:
+      const tempList = state.todos.map((todo) => {
+        if (action.payload.ids.includes(todo.id)) {
+          return {
+            ...todo,
+            status: action.payload.status,
+          };
+        } else {
+          return { ...todo };
+        }
+      });
+
+      return {
+        ...state,
+        todos: tempList,
       };
 
     case DELETE_TODO:

@@ -4,9 +4,8 @@ import reducer, { initialState } from "./store/reducer";
 import {
   setTodos,
   createTodo,
-  toggleAllTodos,
+  toggleMultiTodos,
   deleteAllTodos,
-  updateTodoStatus,
   deleteTodo,
   updateTodoContent,
 } from "./store/actions";
@@ -14,16 +13,14 @@ import Service from "./service";
 import { Todo, TodoStatus } from "./models/todo";
 import useClickOutside from "./hooks/useClickOutside";
 
-type EnhanceTodoStatus = TodoStatus | "ALL";
-
 const ToDoPage = () => {
-  const [{ todos }, dispatch] = useReducer(reducer, initialState);
-  const [showing, setShowing] = useState<EnhanceTodoStatus>("ALL");
   const inputRef = useRef<any>(null);
-
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const inputUpdateRef = useRef<any>(null);
+  const [{ todos }, dispatch] = useReducer(reducer, initialState);
+
+  const [listCheck, setListCheck] = useState<string[]>([]);
   const [isShowUpdate, setIsShowUpdate] = useClickOutside(inputUpdateRef);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -54,19 +51,33 @@ const ToDoPage = () => {
     }
   };
 
-  const onUpdateTodoStatus = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    todoId: any
-  ) => {
-    dispatch(updateTodoStatus(todoId, e.target.checked));
+  const onCheckTodo = (todoId: string) => {
+    let listTemp = [...listCheck];
+    const index = listTemp.findIndex((item) => item === todoId);
+    if (index > -1) {
+      listTemp = listTemp.filter((item) => item !== todoId);
+    } else {
+      listTemp.push(todoId);
+    }
+    setListCheck(listTemp);
   };
 
-  const onDeleteTodo = (todoId: any) => {
+  const onCheckAll = () => {
+    if (todos.length === listCheck.length) {
+      setListCheck([]);
+    } else {
+      setListCheck(todos.map((item) => item.id));
+    }
+  };
+
+  const onDeleteTodo = (todoId: string) => {
     dispatch(deleteTodo(todoId));
   };
 
-  const onToggleAllTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(toggleAllTodos(e.target.checked));
+  const onToggleMultiCheckTodo = (type: string) => {
+    if (listCheck.length === 0) return;
+    dispatch(toggleMultiTodos({ status: type, ids: listCheck }));
+    setListCheck([]);
   };
 
   const onDeleteAllTodo = () => {
@@ -94,8 +105,8 @@ const ToDoPage = () => {
             <div key={index} className="ToDo__item">
               <input
                 type="checkbox"
-                checked={showing === todo.status}
-                onChange={(e) => onUpdateTodoStatus(e, todo.id)}
+                checked={listCheck.includes(todo.id)}
+                onChange={() => onCheckTodo(todo.id)}
               />
               {selectedTodo && selectedTodo.id === todo.id && isShowUpdate ? (
                 <input
@@ -107,7 +118,11 @@ const ToDoPage = () => {
                 />
               ) : (
                 <span onDoubleClick={() => onDoubleClickTodo(todo)}>
-                  {todo.content}
+                  {todo.status === TodoStatus.COMPLETED ? (
+                    <del>{todo.content}</del>
+                  ) : (
+                    todo.content
+                  )}
                 </span>
               )}
               <button
@@ -122,21 +137,25 @@ const ToDoPage = () => {
       </div>
       <div className="Todo__toolbar">
         {todos.length > 0 ? (
-          <input type="checkbox" onChange={onToggleAllTodo} />
+          <input
+            type="checkbox"
+            onChange={onCheckAll}
+            checked={todos.length === listCheck.length}
+          />
         ) : (
           <div />
         )}
         <div className="Todo__tabs">
-          <button className="Action__btn">All</button>
+          {/* <button className="Action__btn">All</button> */}
           <button
             className="Action__btn"
-            onClick={() => setShowing(TodoStatus.ACTIVE)}
+            onClick={() => onToggleMultiCheckTodo(TodoStatus.ACTIVE)}
           >
             Active
           </button>
           <button
             className="Action__btn"
-            onClick={() => setShowing(TodoStatus.COMPLETED)}
+            onClick={() => onToggleMultiCheckTodo(TodoStatus.COMPLETED)}
           >
             Completed
           </button>
