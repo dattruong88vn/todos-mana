@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 
 import reducer, { initialState } from "./store/reducer";
 import {
@@ -9,15 +9,12 @@ import {
   updateTodoContent,
 } from "./store/actions";
 import Service from "./service";
-import { Todo, TodoStatus } from "./models/todo";
+import { Todo } from "./models/todo";
 
 import { InputTodo, ItemTodo, Button, CheckBox } from "src/components";
 
-type EnhancedTodosStatus = TodoStatus | "All";
-
 const ToDoPage = () => {
   const [{ todos }, dispatch] = useReducer(reducer, initialState);
-  const [show, setShow] = useState<EnhancedTodosStatus>("All");
 
   useEffect(() => {
     (async () => {
@@ -47,35 +44,30 @@ const ToDoPage = () => {
     dispatch(deleteAllTodos());
   };
 
+  const renderTodos = (list: Todo[]) => {
+    return list.map((todo) => {
+      return (
+        <ItemTodo
+          key={todo.id}
+          todo={todo}
+          onUpdateTodoContent={onUpdateTodoContent}
+          onDeleteTodo={onDeleteTodo}
+        />
+      );
+    });
+  };
+
   return (
     <div className="ToDo__container">
       <InputTodo onCreateTodo={onCreateTodo} />
 
-      <div className="ToDo__list">
-        {todos.map((todo) => {
-          return (
-            <ItemTodo
-              key={todo.id}
-              todo={todo}
-              onUpdateTodoContent={onUpdateTodoContent}
-              onDeleteTodo={onDeleteTodo}
-            />
-          );
-        })}
-      </div>
+      <div className="ToDo__list">{renderTodos(todos)}</div>
       <div className="Todo__toolbar">
-        {todos.length > 0 ? (
-          <CheckBox onChange={() => {}} checked={show === "All"} />
-        ) : (
-          <div />
-        )}
+        {todos.length > 0 ? <CheckBox onChange={() => {}} /> : <div />}
         <div className="Todo__tabs">
           <Button onClick={() => {}} title="All" />
-          <Button onClick={() => setShow(TodoStatus.ACTIVE)} title="Active" />
-          <Button
-            onClick={() => setShow(TodoStatus.COMPLETED)}
-            title="Completed"
-          />
+          <Button onClick={() => {}} title="Active" />
+          <Button onClick={() => {}} title="Completed" />
         </div>
         <Button onClick={onDeleteAllTodo} title="Clear all todos" />
       </div>

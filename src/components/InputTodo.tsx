@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, memo } from "react";
 
 import Service from "src/service";
 
@@ -7,6 +7,7 @@ interface InputTodoProps {
 }
 
 const InputTodo = ({ onCreateTodo }: InputTodoProps) => {
+  console.warn("Render {InputTodo} {Todo}");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCreateTodo = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -31,4 +32,4 @@ const InputTodo = ({ onCreateTodo }: InputTodoProps) => {
   );
 };
 
-export default InputTodo;
+export default memo(InputTodo, () => true);

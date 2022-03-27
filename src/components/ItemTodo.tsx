@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { Todo } from "src/models/todo";
+import React, { useRef, useState, memo } from "react";
+import { Todo, TodoStatus } from "src/models/todo";
 
 import { CheckBox } from "src/components";
 
@@ -12,15 +12,15 @@ interface ItemTodoProps {
 }
 
 function ItemTodo({ todo, onUpdateTodoContent, onDeleteTodo }: ItemTodoProps) {
-  console.warn("Render {ItemTodo} {Todos}");
+  console.warn(`Render {${todo.id}} {ItemTodo} {Todos}`);
 
-  const { id, content } = todo;
+  const { id, content, status } = todo;
   const inputUpdateRef = useRef<HTMLInputElement>(null);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   const [isShowUpdate, setIsShowUpdate] = useClickOutside(inputUpdateRef);
 
-  const handleCheckTodo = (id: String) => {};
+  const handleCheckTodo = (id: string) => {};
 
   const handleDoubleClickTodo = (todo: Todo) => {
     setSelectedTodo(todo);
@@ -61,4 +61,15 @@ function ItemTodo({ todo, onUpdateTodoContent, onDeleteTodo }: ItemTodoProps) {
   );
 }
 
-export default ItemTodo;
+const compare = (prevProps: ItemTodoProps, nextProps: ItemTodoProps) => {
+  const { todo: prevTodo } = prevProps;
+  const { todo: nextTodo } = nextProps;
+
+  return (
+    prevTodo.id === nextTodo.id &&
+    prevTodo.content === nextTodo.content &&
+    prevTodo.status === nextTodo.status
+  );
+};
+
+export default memo(ItemTodo, compare);

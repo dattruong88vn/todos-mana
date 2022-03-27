@@ -7,6 +7,7 @@ interface ButtonProps {
 }
 
 function Button({ className, onClick, title }: ButtonProps) {
+  console.warn("Render {Button}");
   return (
     <button className={className || "Action__btn"} onClick={onClick}>
       {title}
@@ -14,4 +15,11 @@ function Button({ className, onClick, title }: ButtonProps) {
   );
 }
 
-export default Button;
+const compare = (prevProps: ButtonProps, nextProps: ButtonProps) => {
+  return (
+    prevProps.className === nextProps.className &&
+    prevProps.title === nextProps.title
+  );
+};
+
+export default React.memo(Button, compare);
