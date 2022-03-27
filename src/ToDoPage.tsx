@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 
 import reducer, { initialState } from "./store/reducer";
 import {
