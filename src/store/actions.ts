@@ -100,27 +100,6 @@ export function deleteAllTodos(): DeleteAllTodosAction {
     type: DELETE_ALL_TODOS,
   };
 }
-
-///////////
-interface ToggleMultiTodoPayload {
-  status: string;
-  ids: string[];
-}
-export interface ToggleMultiTodosAction {
-  type: typeof TOGGLE_MULTI_TODOS;
-  payload: ToggleMultiTodoPayload;
-}
-
-export function toggleMultiTodos({
-  status,
-  ids,
-}: ToggleMultiTodoPayload): ToggleMultiTodosAction {
-  return {
-    type: TOGGLE_MULTI_TODOS,
-    payload: { status, ids },
-  };
-}
-
 export interface ToggleAllTodosAction {
   type: typeof TOGGLE_ALL_TODOS;
   payload: boolean;
@@ -140,5 +119,4 @@ export type AppActions =
   | DeleteTodoAction
   | DeleteAllTodosAction
   | UpdateTodoContentAction
-  | ToggleAllTodosAction
-  | ToggleMultiTodosAction;
+  | ToggleAllTodosAction;

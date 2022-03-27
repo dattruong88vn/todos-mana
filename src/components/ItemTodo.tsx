@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Todo, TodoStatus } from "src/models/todo";
+import { Todo } from "src/models/todo";
 
 import { CheckBox } from "src/components";
 

@@ -1,10 +1,9 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import reducer, { initialState } from "./store/reducer";
 import {
   setTodos,
   createTodo,
-  toggleMultiTodos,
   deleteAllTodos,
   deleteTodo,
   updateTodoContent,
@@ -12,12 +11,13 @@ import {
 import Service from "./service";
 import { Todo, TodoStatus } from "./models/todo";
 
-import { InputTodo, ItemTodo } from "src/components";
+import { InputTodo, ItemTodo, Button, CheckBox } from "src/components";
+
+type EnhancedTodosStatus = TodoStatus | "All";
 
 const ToDoPage = () => {
   const [{ todos }, dispatch] = useReducer(reducer, initialState);
-
-  const [listCheck, setListCheck] = useState<string[]>([]);
+  const [show, setShow] = useState<EnhancedTodosStatus>("All");
 
   useEffect(() => {
     (async () => {
@@ -39,33 +39,8 @@ const ToDoPage = () => {
     dispatch(updateTodoContent(id, newContent));
   };
 
-  const onCheckTodo = (todoId: string) => {
-    let listTemp = [...listCheck];
-    const index = listTemp.findIndex((item) => item === todoId);
-    if (index > -1) {
-      listTemp = listTemp.filter((item) => item !== todoId);
-    } else {
-      listTemp.push(todoId);
-    }
-    setListCheck(listTemp);
-  };
-
-  const onCheckAll = () => {
-    if (todos.length === listCheck.length) {
-      setListCheck([]);
-    } else {
-      setListCheck(todos.map((item) => item.id));
-    }
-  };
-
   const onDeleteTodo = (todoId: string) => {
     dispatch(deleteTodo(todoId));
-  };
-
-  const onToggleMultiCheckTodo = (type: string) => {
-    if (listCheck.length === 0) return;
-    dispatch(toggleMultiTodos({ status: type, ids: listCheck }));
-    setListCheck([]);
   };
 
   const onDeleteAllTodo = () => {
@@ -90,32 +65,19 @@ const ToDoPage = () => {
       </div>
       <div className="Todo__toolbar">
         {todos.length > 0 ? (
-          <input
-            type="checkbox"
-            onChange={onCheckAll}
-            checked={todos.length === listCheck.length}
-          />
+          <CheckBox onChange={() => {}} checked={show === "All"} />
         ) : (
           <div />
         )}
         <div className="Todo__tabs">
-          {/* <button className="Action__btn">All</button> */}
-          <button
-            className="Action__btn"
-            onClick={() => onToggleMultiCheckTodo(TodoStatus.ACTIVE)}
-          >
-            Active
-          </button>
-          <button
-            className="Action__btn"
-            onClick={() => onToggleMultiCheckTodo(TodoStatus.COMPLETED)}
-          >
-            Completed
-          </button>
+          <Button onClick={() => {}} title="All" />
+          <Button onClick={() => setShow(TodoStatus.ACTIVE)} title="Active" />
+          <Button
+            onClick={() => setShow(TodoStatus.COMPLETED)}
+            title="Completed"
+          />
         </div>
-        <button className="Action__btn" onClick={onDeleteAllTodo}>
-          Clear all todos
-        </button>
+        <Button onClick={onDeleteAllTodo} title="Clear all todos" />
       </div>
     </div>
   );
