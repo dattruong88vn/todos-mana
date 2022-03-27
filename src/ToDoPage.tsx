@@ -11,16 +11,13 @@ import {
 } from "./store/actions";
 import Service from "./service";
 import { Todo, TodoStatus } from "./models/todo";
-import useClickOutside from "./hooks/useClickOutside";
+
+import { InputTodo, ItemTodo } from "src/components";
 
 const ToDoPage = () => {
-  const inputRef = useRef<any>(null);
-  const inputUpdateRef = useRef<any>(null);
   const [{ todos }, dispatch] = useReducer(reducer, initialState);
 
   const [listCheck, setListCheck] = useState<string[]>([]);
-  const [isShowUpdate, setIsShowUpdate] = useClickOutside(inputUpdateRef);
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -34,21 +31,12 @@ const ToDoPage = () => {
     window.localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
-  const onCreateTodo = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      const resp = await Service.createTodo(inputRef.current.value);
-      dispatch(createTodo(resp));
-      inputRef.current.value = "";
-    }
+  const onCreateTodo = (todo: Todo) => {
+    dispatch(createTodo(todo));
   };
 
-  const onUpdateTodoContent = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && selectedTodo) {
-      dispatch(
-        updateTodoContent(selectedTodo.id, inputUpdateRef.current.value)
-      );
-      setIsShowUpdate(false);
-    }
+  const onUpdateTodoContent = (id: string, newContent: string) => {
+    dispatch(updateTodoContent(id, newContent));
   };
 
   const onCheckTodo = (todoId: string) => {
@@ -84,54 +72,19 @@ const ToDoPage = () => {
     dispatch(deleteAllTodos());
   };
 
-  const onDoubleClickTodo = (todo: Todo) => {
-    setSelectedTodo(todo);
-    setIsShowUpdate(true);
-  };
-
   return (
     <div className="ToDo__container">
-      <div className="Todo__creation">
-        <input
-          ref={inputRef}
-          className="Todo__input"
-          placeholder="What need to be done?"
-          onKeyDown={onCreateTodo}
-        />
-      </div>
+      <InputTodo onCreateTodo={onCreateTodo} />
+
       <div className="ToDo__list">
-        {todos.map((todo, index) => {
+        {todos.map((todo) => {
           return (
-            <div key={index} className="ToDo__item">
-              <input
-                type="checkbox"
-                checked={listCheck.includes(todo.id)}
-                onChange={() => onCheckTodo(todo.id)}
-              />
-              {selectedTodo && selectedTodo.id === todo.id && isShowUpdate ? (
-                <input
-                  className="Todo__input"
-                  ref={inputUpdateRef}
-                  defaultValue={selectedTodo.content}
-                  autoFocus
-                  onKeyDown={onUpdateTodoContent}
-                />
-              ) : (
-                <span onDoubleClick={() => onDoubleClickTodo(todo)}>
-                  {todo.status === TodoStatus.COMPLETED ? (
-                    <del>{todo.content}</del>
-                  ) : (
-                    todo.content
-                  )}
-                </span>
-              )}
-              <button
-                className="Todo__delete"
-                onClick={() => onDeleteTodo(todo.id)}
-              >
-                X
-              </button>
-            </div>
+            <ItemTodo
+              key={todo.id}
+              todo={todo}
+              onUpdateTodoContent={onUpdateTodoContent}
+              onDeleteTodo={onDeleteTodo}
+            />
           );
         })}
       </div>
